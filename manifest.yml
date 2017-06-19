@@ -1,0 +1,5 @@
+---
+applications:
+ - name: bugguinho
+   random-route: true
+   memory: 256M
