@@ -62,12 +62,12 @@ app.post('/webhook/', function (req, res) {
 				payload.context = params.context;
 			}
 		}
-        if(text.indexOf('Ola') >= 0)
-            messenger.sendMessage(sender, 'Qualé');
-        else {
-            messenger.sendMessage(sender, text);
-        }
-		//callWatson(payload, sender);
+        // if(text.indexOf('Ola') >= 0)
+        //     messenger.sendMessage(sender, 'Qualé');
+        // else {
+        //     messenger.sendMessage(sender, text);
+        // }
+		callWatson(payload, sender);
     }
     res.sendStatus(200);
 });
@@ -77,6 +77,19 @@ function callWatson(payload, sender) {
         if (err) {
             return responseToRequest.send("Erro.");
         }
+
+        if(convResults.intents[0].intent == 'hello' && convResults.intents[0].confidence > 0.9){
+            messenger.sendMessageWelcome(sender);
+        }
+
+        if(convResults.intents[0].intent == 'existencia'){
+            messenger.getName(sender, function (response) {
+            let text = 'Olá ' + response + ' a resposta é 42!' ;
+            messenger.sendMessage(sender, text);
+          });
+
+        }
+
 
 		if(convResults.context != null)
     	   conversation_id = convResults.context.conversation_id;
@@ -91,8 +104,6 @@ function callWatson(payload, sender) {
 }
 
 
-
-var token = "EAAGmWBQO9O4BAI6ZAlZCmY0PFFHfs2dE24CBrIPK0rTNeYFPgmLa3Ls6ZB0dtNZCYfGqWSoY7wf3prIB9X2pFwygvROXVf062c6P1yfxTzI0JNElMSNDl9F0duUgwIoTOFGjr5ilX1eZCpZBsCrtqEl1QNl0DnPUQKDYnO78v6lAZDZD";
 var host = (process.env.VCAP_APP_HOST || 'localhost');
 var port = (process.env.VCAP_APP_PORT || 3000);
 app.listen(port, host);
