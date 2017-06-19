@@ -2,6 +2,8 @@ var express = require('express');
 var request = require('request');
 var bodyParser = require('body-parser');
 var watson = require('watson-developer-cloud');
+var messenger = require('./messenger');
+
 var app = express();
 
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -17,6 +19,7 @@ var w_conversation = watson.conversation({
 });
 var workspace = process.env.WORKSPACE_ID || 'b9f5ffe5-76d1-4a6d-b3e1-c80afd443ce0';
 
+//Recebe a ativação do messenger webhook
 app.get('/webhook/', function (req, res) {
     if (req.query['hub.verify_token'] === 'tokenlegal') {
         res.send(req.query['hub.challenge']);
@@ -24,6 +27,7 @@ app.get('/webhook/', function (req, res) {
     res.send('Erro de validação no token.');
 });
 
+//Recebe as mensagens
 app.post('/webhook/', function (req, res) {
 	var text = null;
 
@@ -59,9 +63,9 @@ app.post('/webhook/', function (req, res) {
 			}
 		}
         if(text.indexOf('Ola') >= 0)
-            sendMessage(sender, 'Qualé');
+            messenger.sendMessage(sender, 'Qualé');
         else {
-            sendMessage(sender, text);
+            messenger.sendMessage(sender, text);
         }
 		//callWatson(payload, sender);
     }
@@ -86,26 +90,7 @@ function callWatson(payload, sender) {
     });
 }
 
-function sendMessage(sender, text_) {
-	text_ = text_.substring(0, 319);
-	messageData = {	text: text_ };
 
-    request({
-        url: 'https://graph.facebook.com/v2.6/me/messages',
-        qs: { access_token: token },
-        method: 'POST',
-        json: {
-            recipient: { id: sender },
-            message: messageData,
-        }
-    }, function (error, response, body) {
-        if (error) {
-            console.log('Error sending message: ', error);
-        } else if (response.body.error) {
-            console.log('Error: ', response.body.error);
-        }
-    });
-};
 
 var token = "EAAGmWBQO9O4BAI6ZAlZCmY0PFFHfs2dE24CBrIPK0rTNeYFPgmLa3Ls6ZB0dtNZCYfGqWSoY7wf3prIB9X2pFwygvROXVf062c6P1yfxTzI0JNElMSNDl9F0duUgwIoTOFGjr5ilX1eZCpZBsCrtqEl1QNl0DnPUQKDYnO78v6lAZDZD";
 var host = (process.env.VCAP_APP_HOST || 'localhost');
