@@ -81,7 +81,7 @@ function callWatson(payload, sender) {
         if(convResults.intents[0].intent == 'hello' && convResults.intents[0].confidence > 0.9){
             messenger.sendMessageWelcome(sender);
         }
-
+        //Pega o nome
         if(convResults.intents[0].intent == 'existencia'){
             messenger.getName(sender, function (response) {
             let text = 'Olá ' + response + ' a resposta é 42!' ;
